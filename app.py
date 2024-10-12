@@ -43,7 +43,7 @@ def extracted_text(col):
 st.markdown("""
     <svg width="600" height="100">
         <text x="50%" y="50%" font-family="monospace" font-size="42px" fill="Turquoise" text-anchor="middle" stroke="white"
-         stroke-width="0.3" stroke-linejoin="round">📃 ScanMaster OCR 📃
+         stroke-width="0.3" stroke-linejoin="round">
         </text>
     </svg>
 """, unsafe_allow_html=True)
