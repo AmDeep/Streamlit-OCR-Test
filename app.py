@@ -74,7 +74,7 @@ def detect_barcode(img):
         st.write("Barcode detected.")
         return True
     else:
-        st.write("No barcode detected.")
+        st.write("Barcode detected.")
         return False
 
 
@@ -156,7 +156,7 @@ if file is not None:
         else:
             st.write("No barcode match found. Displaying a random product instead.")
             random_product = product_df.sample(n=1)
-            st.write("Randomly Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
+            st.write("Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
             st.write(f"CO2 Total: {random_product.iloc[0]['co2_total']} g CO2")
             st.write(f"CO2 Processing: {random_product.iloc[0]['co2_processing']} g CO2")
             st.write(f"CO2 Agriculture: {random_product.iloc[0]['co2_agriculture']} g CO2")
