@@ -172,7 +172,7 @@ if file is not None:
     else:
         # If no barcode is detected, show a random alternative
         random_product = product_df.sample(n=1)
-        st.write("Randomly Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
+        st.write("Alternative Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
         st.write(f"CO2 Total: {random_product.iloc[0]['co2_total']} g CO2")
         st.write(f"CO2 Processing: {random_product.iloc[0]['co2_processing']} g CO2")
         st.write(f"CO2 Agriculture: {random_product.iloc[0]['co2_agriculture']} g CO2")
