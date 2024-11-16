@@ -5,10 +5,11 @@ import streamlit as st
 from PIL import Image
 import cv2
 import base64
+from fuzzywuzzy import fuzz
 import random
 
 
-# Function to add app background image (but now setting to white background)
+# Function to add app background image (set to white background with black text)
 def add_bg_from_local(image_file=None):
     # Custom style for white background and black text
     st.markdown(
@@ -49,21 +50,14 @@ def extracted_text(col):
 
 
 # Simple matching function (uses string comparison)
-def match_product(text, product_df):
-    # Convert text to lowercase for case insensitive comparison
-    text = text.lower()
-    
-    # Initialize an empty list to store the matches
+def match_product_by_barcode(barcode, product_df, threshold=90):
     matches = []
-    
-    # Iterate over each product in the dataframe
+    # Search for a product with a similar barcode
     for idx, row in product_df.iterrows():
-        product_name = row['Product'].lower()
-        
-        # Simple substring matching for now (can be improved)
-        if any(keyword in text for keyword in product_name.split()):
-            matches.append(row)
-    
+        if row['barcode'] is not None:
+            match_score = fuzz.ratio(str(barcode), str(row['barcode']))
+            if match_score >= threshold:
+                matches.append(row)
     return matches
 
 
@@ -137,21 +131,16 @@ if file is not None:
     # getting final image with drawing annotations
     display_ocr_image(image, results)
 
-    # Detect barcode from the image
+    # Check for barcode and try to match
     if detect_barcode(image):
-        st.write("Barcode processed. Looking for product alternatives based on barcode.")
-        # For now, display a product from the database (just showing a random product as a placeholder)
-        random_product = product_df.sample(n=1)
-        st.write("Based on the barcode, we recommend an alternative product: **" + random_product.iloc[0]['Product'] + "**")
-
-    else:
-        # Match the extracted text to products in the database
-        matches = match_product(text_combined, product_df)
-
+        st.write("Attempting to match barcode...")
+        # Assuming the barcode is extracted from the image, we simulate a barcode match
+        extracted_barcode = '3017620422003'  # This would normally come from barcode detection logic
+        
+        matches = match_product_by_barcode(extracted_barcode, product_df)
         if matches:
-            st.write("Recommended Alternatives: ")
             for match in matches:
-                st.write(f"**{match['Product']}**")
+                st.write("Recommended Product based on Barcode Match: **" + match['Product'] + "**")
                 st.write(f"CO2 Total: {match['co2_total']} g CO2")
                 st.write(f"CO2 Processing: {match['co2_processing']} g CO2")
                 st.write(f"CO2 Agriculture: {match['co2_agriculture']} g CO2")
@@ -165,7 +154,36 @@ if file is not None:
                 st.write(f"EF Distribution: {match['ef_distribution']} g CO2 equivalent")
                 st.write("---")
         else:
-            st.write("No products matched, please try a different search.")
-
+            st.write("No barcode match found. Displaying a random product instead.")
+            random_product = product_df.sample(n=1)
+            st.write("Randomly Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
+            st.write(f"CO2 Total: {random_product.iloc[0]['co2_total']} g CO2")
+            st.write(f"CO2 Processing: {random_product.iloc[0]['co2_processing']} g CO2")
+            st.write(f"CO2 Agriculture: {random_product.iloc[0]['co2_agriculture']} g CO2")
+            st.write(f"CO2 Consumption: {random_product.iloc[0]['co2_consumption']} g CO2")
+            st.write(f"CO2 Transportation: {random_product.iloc[0]['co2_transportation']} g CO2")
+            st.write(f"EF Total: {random_product.iloc[0]['ef_total']} g CO2 equivalent")
+            st.write(f"EF Consumption: {random_product.iloc[0]['ef_consumption']} g CO2 equivalent")
+            st.write(f"EF Packaging: {random_product.iloc[0]['ef_packaging']} g CO2 equivalent")
+            st.write(f"EF Agriculture: {random_product.iloc[0]['ef_agriculture']} g CO2 equivalent")
+            st.write(f"EF Transportation: {random_product.iloc[0]['ef_transportation']} g CO2 equivalent")
+            st.write(f"EF Distribution: {random_product.iloc[0]['ef_distribution']} g CO2 equivalent")
+            st.write("---")
+    else:
+        # If no barcode is detected, show a random alternative
+        random_product = product_df.sample(n=1)
+        st.write("Randomly Recommended Product: **" + random_product.iloc[0]['Product'] + "**")
+        st.write(f"CO2 Total: {random_product.iloc[0]['co2_total']} g CO2")
+        st.write(f"CO2 Processing: {random_product.iloc[0]['co2_processing']} g CO2")
+        st.write(f"CO2 Agriculture: {random_product.iloc[0]['co2_agriculture']} g CO2")
+        st.write(f"CO2 Consumption: {random_product.iloc[0]['co2_consumption']} g CO2")
+        st.write(f"CO2 Transportation: {random_product.iloc[0]['co2_transportation']} g CO2")
+        st.write(f"EF Total: {random_product.iloc[0]['ef_total']} g CO2 equivalent")
+        st.write(f"EF Consumption: {random_product.iloc[0]['ef_consumption']} g CO2 equivalent")
+        st.write(f"EF Packaging: {random_product.iloc[0]['ef_packaging']} g CO2 equivalent")
+        st.write(f"EF Agriculture: {random_product.iloc[0]['ef_agriculture']} g CO2 equivalent")
+        st.write(f"EF Transportation: {random_product.iloc[0]['ef_transportation']} g CO2 equivalent")
+        st.write(f"EF Distribution: {random_product.iloc[0]['ef_distribution']} g CO2 equivalent")
+        st.write("---")
 else:
     st.warning("!! Please Upload your image !!")
