@@ -5,14 +5,27 @@ import streamlit as st
 from PIL import Image
 import cv2
 import base64
+import random
 
 
-# Function to add app background image
-def add_bg_from_local(image_file):
-    with open(image_file, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read())
-    st.markdown(f"""<style>.stApp {{background-image: url(data:image/{"png"};base64,{encoded_string.decode()});
-    background-size: cover}}</style>""", unsafe_allow_html=True)
+# Function to add app background image (but now setting to white background)
+def add_bg_from_local(image_file=None):
+    # Custom style for white background and black text
+    st.markdown(
+        """
+        <style>
+        .stApp {
+            background-color: white;
+        }
+        .css-18e3th9 {
+            color: black;
+        }
+        .stText {
+            color: black;
+        }
+        </style>
+        """, unsafe_allow_html=True
+    )
 
 
 def display_ocr_image(img, results):
@@ -71,20 +84,22 @@ def detect_barcode(img):
         return False
 
 
-# Dummy Product Database (replace this with real data as needed)
+# Dummy Product Database (expanded with more products and barcode information)
 data = {
-    'Product': ['Eco Water Bottle', 'Green Tea', 'Sustainable Shoes', 'Organic Coffee', 'Reusable Bag'],
-    'ef_consumption': [5.2, 2.8, 3.4, 6.1, 1.3],
-    'ef_packaging': [0.9, 0.4, 1.1, 0.7, 0.2],
-    'ef_agriculture': [2.1, 1.5, 0.9, 0.3, 0.5],
-    'co2_processing': [0.3, 0.5, 0.6, 0.4, 0.1],
-    'co2_agriculture': [1.4, 1.1, 0.7, 0.2, 0.3],
-    'co2_consumption': [0.5, 0.6, 0.3, 1.0, 0.2],
-    'ef_transportation': [1.5, 0.8, 2.2, 1.3, 0.9],
-    'ef_total': [10.5, 6.8, 8.3, 8.8, 2.9],
-    'co2_transportation': [0.6, 0.3, 0.8, 0.5, 0.4],
-    'co2_total': [3.7, 2.6, 2.6, 1.8, 1.0],
-    'ef_distribution': [0.8, 0.3, 0.5, 0.2, 0.3]
+    'Product': ['Eco Water Bottle', 'Green Tea', 'Sustainable Shoes', 'Organic Coffee', 'Reusable Bag', 
+                'Vegan Protein Powder', 'Bamboo Toothbrush', 'Compostable Plates', 'Organic Shampoo', 'Solar Charger'],
+    'ef_consumption': [5.2, 2.8, 3.4, 6.1, 1.3, 4.1, 1.2, 2.7, 3.0, 5.5],
+    'ef_packaging': [0.9, 0.4, 1.1, 0.7, 0.2, 0.5, 0.3, 0.4, 0.6, 1.0],
+    'ef_agriculture': [2.1, 1.5, 0.9, 0.3, 0.5, 1.2, 0.4, 0.7, 0.8, 2.2],
+    'co2_processing': [0.3, 0.5, 0.6, 0.4, 0.1, 0.2, 0.1, 0.3, 0.2, 0.4],
+    'co2_agriculture': [1.4, 1.1, 0.7, 0.2, 0.3, 0.8, 0.3, 0.4, 0.5, 1.0],
+    'co2_consumption': [0.5, 0.6, 0.3, 1.0, 0.2, 0.5, 0.2, 0.3, 0.4, 0.6],
+    'ef_transportation': [1.5, 0.8, 2.2, 1.3, 0.9, 1.0, 0.7, 0.9, 1.2, 1.6],
+    'ef_total': [10.5, 6.8, 8.3, 8.8, 2.9, 7.1, 3.1, 4.8, 5.5, 10.8],
+    'co2_transportation': [0.6, 0.3, 0.8, 0.5, 0.4, 0.5, 0.2, 0.3, 0.4, 0.7],
+    'co2_total': [3.7, 2.6, 2.6, 1.8, 1.0, 2.5, 1.1, 1.6, 1.8, 3.3],
+    'ef_distribution': [0.8, 0.3, 0.5, 0.2, 0.3, 0.4, 0.3, 0.4, 0.5, 0.6],
+    'barcode': [None, None, '3017620422003', None, None, None, None, None, None, None]  # Added barcode to one product
 }
 
 product_df = pd.DataFrame(data)
@@ -92,13 +107,13 @@ product_df = pd.DataFrame(data)
 # Streamlit app
 st.markdown("""
     <svg width="600" height="100">
-        <text x="50%" y="50%" font-family="monospace" font-size="42px" fill="Turquoise" text-anchor="middle" stroke="white"
+        <text x="50%" y="50%" font-family="monospace" font-size="42px" fill="black" text-anchor="middle" stroke="white"
          stroke-width="0.3" stroke-linejoin="round">
         </text>
     </svg>
 """, unsafe_allow_html=True)
 
-add_bg_from_local('background.jpg')
+add_bg_from_local()
 
 file = st.file_uploader(label="Upload Image Here (png/jpg/jpeg) : ", type=['png', 'jpg', 'jpeg'])
 
@@ -125,9 +140,9 @@ if file is not None:
     # Detect barcode from the image
     if detect_barcode(image):
         st.write("Barcode processed. Looking for product alternatives based on barcode.")
-        # Here you can implement barcode-specific logic to fetch a product from the database
-        # For simplicity, we'll just show a dummy product suggestion
-        st.write("Based on the barcode, we recommend an alternative product: **Sustainable Shoes**")
+        # For now, display a product from the database (just showing a random product as a placeholder)
+        random_product = product_df.sample(n=1)
+        st.write("Based on the barcode, we recommend an alternative product: **" + random_product.iloc[0]['Product'] + "**")
 
     else:
         # Match the extracted text to products in the database
